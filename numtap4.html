@@ -2,712 +2,792 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>空間把握トレーニング（コート版 / 通常版）</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Spatial Number Tap (B: Court + Normal)</title>
   <style>
-    :root{
-      --bg1:#e9fbf0; --bg2:#f7f6ff;
-      --ink:#1d2433; --muted:#64748b;
-      --card: rgba(255,255,255,.78);
-      --stroke: rgba(20,25,35,.12);
-      --shadow: 0 10px 30px rgba(12,18,28,.12);
-      --r: 18px;
+    :root {
+      --bg0:#0b1020;
+      --panel:#0f1733cc;
+      --text:#e9eeff;
+      --muted:#a8b1d8;
+      --accent:#78d6ff;
+      --danger:#ff6b6b;
+      --ok:#62ffb0;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
-      color:var(--ink);
-      background:
-        radial-gradient(1200px 800px at 15% 10%, #ffffff 0%, transparent 60%),
-        radial-gradient(900px 700px at 80% 20%, #ffffff 0%, transparent 55%),
-        linear-gradient(135deg, var(--bg1), var(--bg2));
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-    }
-    .wrap{ width:min(980px, 100%); display:grid; gap:12px; }
-    header{ display:flex; gap:12px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; }
-    .title{ display:flex; gap:10px; align-items:center; }
-    .badge{
-      width:42px;height:42px;border-radius:14px;
-      background:linear-gradient(135deg, #8ef6c5, #a5b4fc);
-      box-shadow: 0 10px 18px rgba(79,70,229,.14);
-      display:grid;place-items:center;
-      border:1px solid rgba(255,255,255,.65);
-    }
-    .badge span{ font-weight:900; color:#0b1020; transform: rotate(-8deg); }
-    h1{ margin:0; font-size:18px; line-height:1.2; }
-    .sub{ margin:2px 0 0; font-size:12px; color:var(--muted); }
-
-    .panel{
-      background:var(--card);
-      border:1px solid var(--stroke);
-      border-radius: var(--r);
-      box-shadow: var(--shadow);
+    html,body{
+      margin:0; height:100%;
+      background: radial-gradient(1200px 900px at 50% 20%, #1a2a66 0%, #070b18 55%, #040611 100%);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
       overflow:hidden;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .controls{
-      padding:12px;
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr auto;
-      gap:10px;
-      align-items:end;
+    #wrap{
+      position:fixed; inset:0;
+      display:flex; flex-direction:column;
     }
-    @media (max-width: 900px){
-      .controls{ grid-template-columns: 1fr 1fr; }
-      .controls .btnrow{ grid-column: 1 / -1; justify-content:stretch; }
-    }
-    label{ display:grid; gap:6px; font-size:12px; color:var(--muted); }
-    select, input[type="range"]{ width:100%; }
-    select{
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid rgba(15,23,42,.15);
-      background:rgba(255,255,255,.9);
-      font-size:14px;
-      color:var(--ink);
-      outline:none;
-    }
-    .rangeRow{ display:flex; gap:10px; align-items:center; }
-    .pill{
-      font-variant-numeric: tabular-nums;
-      padding:8px 10px;
-      border-radius:999px;
-      background:rgba(15,23,42,.06);
-      border:1px solid rgba(15,23,42,.08);
-      color:var(--ink);
-      font-size:13px;
-      min-width:86px;
-      text-align:center;
-    }
-    .btnrow{ display:flex; gap:10px; justify-content:flex-end; align-items:center; }
-    button{
-      border:none;
+    header{
+      display:flex; gap:10px; align-items:center;
       padding:10px 12px;
-      border-radius:14px;
-      font-weight:700;
-      cursor:pointer;
-      color:#0b1020;
-      background:linear-gradient(135deg, #a7f3d0, #c7d2fe);
-      box-shadow: 0 10px 18px rgba(79,70,229,.10);
-      border:1px solid rgba(255,255,255,.65);
+      background: linear-gradient(180deg, rgba(10,16,38,0.86), rgba(10,16,38,0.35));
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-    button.secondary{
-      background:rgba(255,255,255,.9);
-      border:1px solid rgba(15,23,42,.15);
-      box-shadow:none;
-      color:var(--ink);
-    }
-    button:active{ transform: translateY(1px); }
-
-    .stage{ padding:12px; }
-    .hud{
-      display:flex; gap:10px;
-      align-items:center; justify-content:space-between;
-      flex-wrap:wrap;
-      margin-bottom:10px;
-    }
-    .hud .stats{ display:flex; gap:10px; flex-wrap:wrap; }
-    .chip{
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
       padding:8px 10px;
-      border-radius:999px;
-      background:rgba(255,255,255,.75);
-      border:1px solid rgba(15,23,42,.12);
-      font-size:12px;
-      color:var(--ink);
-      font-variant-numeric: tabular-nums;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(10,16,38,0.45);
+      border-radius: 999px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
     }
-    .chip b{ font-size:13px; }
-    .hint{ font-size:12px; color:var(--muted); }
+    .pill b{ font-weight:700; }
+    .pill .muted{ color:var(--muted); font-weight:600; }
+    .spacer{ flex:1; }
+    button, select, input[type="range"], input[type="checkbox"]{
+      font: inherit;
+    }
+    button{
+      cursor:pointer;
+      border-radius: 12px;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(15,23,51,0.55);
+      color: var(--text);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+      transition: transform .06s ease;
+    }
+    button:active{ transform: scale(0.98); }
+    button.primary{
+      border-color: rgba(120,214,255,0.35);
+      background: linear-gradient(180deg, rgba(44,120,178,0.55), rgba(12,18,42,0.55));
+    }
+    button.danger{
+      border-color: rgba(255,107,107,0.35);
+      background: linear-gradient(180deg, rgba(180,60,60,0.52), rgba(12,18,42,0.55));
+    }
 
-    .canvasWrap{ width:100%; display:flex; justify-content:center; }
-    .scale-80  { transform: scale(.80); transform-origin: top center; }
-    .scale-90  { transform: scale(.90); transform-origin: top center; }
-    .scale-100 { transform: scale(1); transform-origin: top center; }
-    .scale-110 { transform: scale(1.10); transform-origin: top center; }
-    .scale-120 { transform: scale(1.20); transform-origin: top center; }
-
+    #stage{
+      position:relative;
+      flex:1;
+      display:flex;
+    }
     canvas{
-      width: 860px;
-      max-width: 100%;
-      height: auto;
-      border-radius: 16px;
-      border:1px solid rgba(15,23,42,.15);
-      background: #f7fff9;
-      box-shadow: 0 16px 40px rgba(12,18,28,.18);
+      width:100%;
+      height:100%;
+      display:block;
       touch-action: manipulation;
     }
 
-    .toast{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      background:rgba(255,255,255,.75);
-      border:1px solid rgba(15,23,42,.12);
-      font-size:13px;
-      color:var(--ink);
+    #panel{
+      position: absolute;
+      top: 62px;
+      right: 12px;
+      width: min(420px, calc(100vw - 24px));
+      max-height: calc(100vh - 86px);
+      overflow:auto;
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px;
+      padding: 12px 12px 14px;
+      box-shadow: 0 18px 55px rgba(0,0,0,0.40);
+      backdrop-filter: blur(12px);
       display:none;
     }
-    .toast.show{ display:block; }
+    #panel.show{ display:block; }
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin:10px 0;
+    }
+    .field{
+      background: rgba(6,10,22,0.45);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 10px 10px;
+    }
+    .field label{
+      display:flex; justify-content:space-between; align-items:center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .field .val{
+      color: var(--text);
+      font-weight: 700;
+      font-size: 12px;
+    }
+    select{
+      width:100%;
+      padding:10px 10px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(15,23,51,0.35);
+      color: var(--text);
+      outline:none;
+    }
+    input[type="range"]{ width:100%; }
+    .checks{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top: 10px;
+    }
+    .check{
+      display:flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(6,10,22,0.45);
+      font-size: 13px;
+      color: var(--text);
+    }
+    .hint{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* mobile safe-area */
+    @supports (padding: max(0px)) {
+      header { padding-top: max(10px, env(safe-area-inset-top)); }
+    }
   </style>
 </head>
+
 <body>
-<div class="wrap">
+<div id="wrap">
   <header>
-    <div class="title">
-      <div class="badge" aria-hidden="true"><span>10</span></div>
-      <div>
-        <h1>空間把握トレーニング</h1>
-        <div class="sub">コート版：ネット最前面／数字は相手コート（奥）だけ。通常版も切替可。</div>
-      </div>
-    </div>
-   </header>
+    <div class="pill" id="hudNext"><span class="muted">Next</span> <b id="nextNum">1</b></div>
+    <div class="pill"><span class="muted">Time</span> <b id="time">0.00</b></div>
+    <div class="pill"><span class="muted">Miss</span> <b id="miss">0</b></div>
+    <div class="spacer"></div>
+    <button class="primary" id="btnReset">Reset</button>
+    <button id="btnPanel">Settings</button>
+  </header>
 
-  <section class="panel">
-    <div class="controls">
-      <label>
-        モード
-        <select id="mode">
-          <option value="court" selected>コート版（相手コートのみ）</option>
-          <option value="normal">通常版（平面フィールド）</option>
-        </select>
-      </label>
+  <div id="stage">
+    <canvas id="c"></canvas>
 
-      <label>
-        最大番号（10刻み）
-        <select id="maxNum">
-          <option value="10">10</option>
-          <option value="20" selected>20</option>
-          <option value="30">30</option>
-          <option value="40">40</option>
-          <option value="50">50</option>
-        </select>
-      </label>
-
-      <label>
-        表示サイズ（小さくする）
-        <select id="uiScale">
-          <option value="80">小（80%）</option>
-          <option value="90">やや小（90%）</option>
-          <option value="100" selected>標準（100%）</option>
-          <option value="110">やや大（110%）</option>
-          <option value="120">大（120%）</option>
-        </select>
-      </label>
-
-      <label>
-        数字の大きさ（密度）
-        <div class="rangeRow">
-          <input id="density" type="range" min="80" max="140" value="105" />
-          <div class="pill"><span id="densityVal">105</span>%</div>
+    <div id="panel" aria-label="settings">
+      <div class="row">
+        <div class="field">
+          <label>Mode <span class="val" id="modeLabel">Court</span></label>
+          <select id="mode">
+            <option value="court">Court（ネット越し）</option>
+            <option value="normal">Normal（平面）</option>
+          </select>
         </div>
-      </label>
+        <div class="field">
+          <label>Count <span class="val" id="countLabel">50</span></label>
+          <select id="count">
+            <option>10</option><option>20</option><option>30</option><option>40</option><option selected>50</option>
+            <option>60</option><option>70</option><option>80</option><option>90</option><option>100</option>
+          </select>
+        </div>
+      </div>
 
-      <div class="btnrow">
-        <button class="secondary" id="reshuffle">配置しなおす</button>
-        <button id="restart">スタート</button>
+      <div class="row">
+        <div class="field">
+          <label>Size <span class="val" id="sizeLabel">1.00</span></label>
+          <input id="size" type="range" min="0.70" max="1.40" step="0.01" value="1.00" />
+        </div>
+        <div class="field">
+          <label>Density <span class="val" id="densityLabel">1.00</span></label>
+          <input id="density" type="range" min="0.80" max="1.30" step="0.01" value="1.00" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Bias（偏り）</label>
+          <select id="bias">
+            <option value="uniform" selected>均等</option>
+            <option value="back">奥（ベースライン側）多め</option>
+            <option value="front">手前（ネット側）多め</option>
+            <option value="left">左寄せ</option>
+            <option value="right">右寄せ</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Hand（利き手）</label>
+          <select id="hand">
+            <option value="right" selected>右利き</option>
+            <option value="left">左利き</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checks">
+        <div class="check"><input id="showNextHud" type="checkbox" checked /> Next表示（HUD）</div>
+        <div class="check"><input id="sound" type="checkbox" /> 音（軽）</div>
+        <div class="check"><input id="vibe" type="checkbox" checked /> バイブ（対応端末）</div>
+      </div>
+
+      <div class="hint">
+        ・常時アニメは無し。<b>正解した瞬間だけ</b>「ぽんっ→消える」。<br/>
+        ・文字は<b>縁取り＋ハイDPI</b>でスマホでも滲みにくい。<br/>
+        ・偏り配置は「実戦で多い移動」を作る用途。利き手は左右偏りのデフォルトに反映。
       </div>
     </div>
-  </section>
-
-  <section class="panel stage">
-    <div class="hud">
-      <div class="stats">
-        <div class="chip">次：<b id="nextNum">1</b></div>
-        <div class="chip">経過：<b id="timer">0.00</b>s</div>
-        <div class="chip">ベスト：<b id="best">—</b></div>
-      </div>
-     </div>
-
-    <div class="canvasWrap" id="canvasWrap">
-      <canvas id="c" width="860" height="520"></canvas>
-    </div>
-
-    <div class="toast" id="toast"></div>
-  </section>
+  </div>
 </div>
 
 <script>
 (() => {
-  const canvas = document.getElementById("c");
-  const ctx = canvas.getContext("2d", { alpha: true });
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d', { alpha: false });
 
-  const modeSel = document.getElementById("mode");
-  const maxNumSel = document.getElementById("maxNum");
-  const uiScaleSel = document.getElementById("uiScale");
-  const density = document.getElementById("density");
-  const densityVal = document.getElementById("densityVal");
-  const restartBtn = document.getElementById("restart");
-  const reshuffleBtn = document.getElementById("reshuffle");
+  // HUD
+  const elNextNum = document.getElementById('nextNum');
+  const elTime = document.getElementById('time');
+  const elMiss = document.getElementById('miss');
+  const hudNext = document.getElementById('hudNext');
 
-  const nextNumEl = document.getElementById("nextNum");
-  const timerEl = document.getElementById("timer");
-  const bestEl = document.getElementById("best");
-  const toast = document.getElementById("toast");
-  const canvasWrap = document.getElementById("canvasWrap");
+  // UI
+  const panel = document.getElementById('panel');
+  const btnPanel = document.getElementById('btnPanel');
+  const btnReset = document.getElementById('btnReset');
 
-  let targets = [];
-  let running = false;
-  let startAt = 0;
-  let elapsed = 0;
-  let next = 1;
-  let shake = 0;
+  const modeSel = document.getElementById('mode');
+  const countSel = document.getElementById('count');
+  const sizeRange = document.getElementById('size');
+  const densityRange = document.getElementById('density');
+  const biasSel = document.getElementById('bias');
+  const handSel = document.getElementById('hand');
 
-  // 背景キャッシュ
-  const bg = document.createElement("canvas");
-  bg.width = canvas.width;
-  bg.height = canvas.height;
-  const bgCtx = bg.getContext("2d");
+  const showNextHud = document.getElementById('showNextHud');
+  const soundChk = document.getElementById('sound');
+  const vibeChk = document.getElementById('vibe');
 
-  // ---- sound (軽) ----
-  let audioCtx = null;
-  function beep(ok=true){
+  const modeLabel = document.getElementById('modeLabel');
+  const countLabel = document.getElementById('countLabel');
+  const sizeLabel = document.getElementById('sizeLabel');
+  const densityLabel = document.getElementById('densityLabel');
+
+  // DevicePixelRatio scaling (最優先：文字が滲まない)
+  let dpr = 1;
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', () => { resize(); reset(true); });
+  resize();
+
+  // Sound (tiny)
+  let ac = null;
+  function beep(freq=440, dur=0.06, type='sine', gain=0.03) {
+    if (!soundChk.checked) return;
     try{
-      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.connect(g); g.connect(audioCtx.destination);
-      const t = audioCtx.currentTime;
-      const base = ok ? 660 : 220;
-      o.type = "sine";
-      o.frequency.setValueAtTime(base, t);
-      o.frequency.exponentialRampToValueAtTime(base*1.2, t+0.06);
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.14, t+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t+0.12);
-      o.start(t); o.stop(t+0.13);
+      if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.value = gain;
+      o.connect(g); g.connect(ac.destination);
+      o.start();
+      o.stop(ac.currentTime + dur);
     }catch(e){}
   }
 
-  // ---- best ----
-  function fmtBest(x){ return isFinite(x) ? x.toFixed(2)+"s" : "—"; }
-  function bestKey(){ return "spatial_best_"+modeSel.value+"_"+maxNumSel.value+"_"+density.value; }
-  function loadBest(){
-    const v = Number(localStorage.getItem(bestKey()));
-    bestEl.textContent = fmtBest(v);
-  }
-  function saveBest(val){
-    const key = bestKey();
-    const cur = Number(localStorage.getItem(key));
-    if(!isFinite(cur) || val < cur) localStorage.setItem(key, String(val));
-    loadBest();
-  }
+  // Game state
+  let circles = []; // {n,x,y,r,alive,anim:{t,type}}
+  let next = 1;
+  let miss = 0;
+  let startedAt = null;
+  let done = false;
 
-  // ---- geometry ----
-  const lerp = (p,q,t)=>({x:p.x+(q.x-p.x)*t, y:p.y+(q.y-p.y)*t});
-  function quadPoint(A,B,C,D,u,v){
-    const P1 = lerp(A,B,u);
-    const P2 = lerp(D,C,u);
-    return lerp(P1,P2,v);
-  }
+  // Settings
+  const S = {
+    mode: 'court',
+    count: 50,
+    size: 1.0,
+    density: 1.0,
+    bias: 'uniform',
+    hand: 'right'
+  };
 
-  function courtQuad(){
-    const w = canvas.width, h = canvas.height;
-    const farY = h*0.14;   // 奥（上）
-    const netY = h*0.62;   // ネット（手前）
-    const nearWidth = 0.72;
-    const farWidth  = 0.46;
+  function readUI() {
+    S.mode = modeSel.value;
+    S.count = parseInt(countSel.value, 10);
+    S.size = parseFloat(sizeRange.value);
+    S.density = parseFloat(densityRange.value);
+    S.bias = biasSel.value;
+    S.hand = handSel.value;
 
-    const A = {x: w*(0.5 - nearWidth/2), y: netY};
-    const B = {x: w*(0.5 + nearWidth/2), y: netY};
-    const D = {x: w*(0.5 - farWidth/2),  y: farY};
-    const C = {x: w*(0.5 + farWidth/2),  y: farY};
-    return {A,B,C,D, netY, farY};
+    modeLabel.textContent = (S.mode === 'court') ? 'Court' : 'Normal';
+    countLabel.textContent = String(S.count);
+    sizeLabel.textContent = S.size.toFixed(2);
+    densityLabel.textContent = S.density.toFixed(2);
+    hudNext.style.display = showNextHud.checked ? 'inline-flex' : 'none';
   }
 
-  // ---- background cached ----
-  function drawBackgroundCached(){
-    const w = bg.width, h = bg.height;
-    bgCtx.clearRect(0,0,w,h);
+  btnPanel.addEventListener('click', () => {
+    panel.classList.toggle('show');
+  });
 
-    const mode = modeSel.value;
+  // Bias helper: skew u in [0,1]
+  function skew(u, dir) {
+    // dir: -1 => toward 0, +1 => toward 1
+    // mild exponential skew
+    const a = 1.7;
+    if (dir < 0) return Math.pow(u, a);
+    if (dir > 0) return 1 - Math.pow(1 - u, a);
+    return u;
+  }
 
-    const base = bgCtx.createLinearGradient(0,0,0,h);
-    base.addColorStop(0, "#f4fff8");
-    base.addColorStop(1, "#eff3ff");
-    bgCtx.fillStyle = base;
-    bgCtx.fillRect(0,0,w,h);
+  // Court perspective mapping: normalized (u,v) -> screen
+  // v: 0 near net (top), 1 far baseline (bottom) but we want "奥" to be smaller visually (perspective)
+  // We'll define a trapezoid area representing court seen through net.
+  function courtMap(u, v, W, H) {
+    // Trapezoid corners (in screen coords)
+    const padX = 0.06 * W, padY = 0.06 * H;
+    const topY = padY + 0.10 * H;
+    const botY = H - padY - 0.06 * H;
+    const topW = 0.60 * W;
+    const botW = 0.92 * W;
+    const cx = W * 0.5;
 
-    if(mode === "normal"){
-      bgCtx.save();
-      bgCtx.globalAlpha = 0.25;
-      bgCtx.fillStyle = "#ffffff";
-      for(let y=20; y<h; y+=70){
-        for(let x=20; x<w; x+=70){
-          bgCtx.beginPath();
-          bgCtx.roundRect(x,y,54,54,12);
-          bgCtx.fill();
-        }
+    const y = topY + (botY - topY) * v;
+    const w = topW + (botW - topW) * v;
+    const x = (cx - w/2) + w * u;
+    return {x, y, wAtV:w, topY, botY, cx, topW, botW};
+  }
+
+  function getPlayRect() {
+    const W = canvas.getBoundingClientRect().width;
+    const H = canvas.getBoundingClientRect().height;
+    return {W, H};
+  }
+
+  function pickUV() {
+    let u = Math.random();
+    let v = Math.random();
+
+    // Apply bias
+    const b = S.bias;
+    if (b === 'back') v = skew(v, +1);
+    if (b === 'front') v = skew(v, -1);
+    if (b === 'left') u = skew(u, -1);
+    if (b === 'right') u = skew(u, +1);
+
+    // Hand default influence (subtle): for right hand, slightly more on right side; for left hand opposite
+    if (b === 'uniform') {
+      const dir = (S.hand === 'right') ? +1 : -1;
+      // gentle nudge
+      u = Math.min(1, Math.max(0, (u*0.86 + skew(Math.random(), dir)*0.14)));
+    }
+    return {u, v};
+  }
+
+  function radiusFor(v) {
+    // Base radius depends on count + density + size
+    // More items => smaller; density => tighter; size => global scaling
+    const {W, H} = getPlayRect();
+    const minDim = Math.min(W, H);
+    const base = minDim * 0.045; // tuned
+    const countFactor = Math.sqrt(50 / S.count); // 50 => 1.0; 100 => ~0.707
+    const densFactor = 1 / S.density; // density up => smaller
+    // perspective effect: far (v close 1) slightly smaller
+    const persp = (S.mode === 'court') ? (0.95 - 0.18 * (v)) : 1.0;
+    const r = base * countFactor * densFactor * S.size * persp;
+    return Math.max(14, Math.min(40, r));
+  }
+
+  function nonOverlapPlace() {
+    const {W, H} = getPlayRect();
+    const placed = [];
+    const maxTries = 9000;
+
+    function isOk(x,y,r){
+      // bounds
+      if (S.mode === 'normal') {
+        const margin = 18;
+        if (x < margin+r || x > W - margin - r) return false;
+        if (y < margin+r || y > H - margin - r) return false;
+      } else {
+        // must be inside trapezoid with margin
+        const {x:tx, y:ty, wAtV} = courtMap(0.5, (y - 0)/H, W, H);
+        // We'll validate against trapezoid more precisely by reversing v from y
+        // Approx: compute v from y linearly between top and bottom
+        const padY = 0.06 * H;
+        const topY = padY + 0.10 * H;
+        const botY = H - padY - 0.06 * H;
+        const v = (y - topY) / (botY - topY);
+        if (v < 0 || v > 1) return false;
+        const map0 = courtMap(0, v, W, H);
+        const map1 = courtMap(1, v, W, H);
+        const left = map0.x, right = map1.x;
+        if (x < left + r + 8 || x > right - r - 8) return false;
       }
-      bgCtx.restore();
 
-      bgCtx.save();
-      bgCtx.strokeStyle = "rgba(15,23,42,.14)";
-      bgCtx.lineWidth = 2;
-      bgCtx.beginPath();
-      bgCtx.roundRect(w*0.06, h*0.10, w*0.88, h*0.84, 18);
-      bgCtx.stroke();
-      bgCtx.restore();
+      for (const p of placed){
+        const dx = x - p.x, dy = y - p.y;
+        const rr = r + p.r + 4; // small gap
+        if (dx*dx + dy*dy < rr*rr) return false;
+      }
+      return true;
+    }
+
+    let tries = 0;
+    for (let n=1; n<=S.count; n++){
+      let ok = false;
+      let x=0,y=0,r=18;
+      while(!ok && tries < maxTries){
+        tries++;
+        if (S.mode === 'normal') {
+          const margin = 28;
+          const u = Math.random();
+          const v = Math.random();
+          // apply bias in normal mode too
+          const uv = pickUV();
+          const uu = uv.u, vv = uv.v;
+          x = margin + (W - 2*margin) * uu;
+          y = margin + (H - 2*margin) * vv;
+          r = radiusFor(vv);
+        } else {
+          const uv = pickUV();
+          r = radiusFor(uv.v);
+          const p = courtMap(uv.u, uv.v, W, H);
+          x = p.x;
+          y = p.y;
+        }
+        ok = isOk(x,y,r);
+      }
+      if (!ok) {
+        // fallback: slightly reduce radius and continue (keeps going instead of failing)
+        r = Math.max(12, r*0.90);
+        placed.push({n,x,y,r});
+      } else {
+        placed.push({n,x,y,r});
+      }
+    }
+    return placed;
+  }
+
+  function reset(keepUI=false) {
+    if (!keepUI) readUI();
+    circles = nonOverlapPlace().map(p => ({
+      n: p.n, x:p.x, y:p.y, r:p.r,
+      alive:true,
+      anim:null
+    }));
+    next = 1;
+    miss = 0;
+    done = false;
+    startedAt = null;
+    elNextNum.textContent = String(next);
+    elMiss.textContent = String(miss);
+    elTime.textContent = '0.00';
+  }
+
+  btnReset.addEventListener('click', () => reset());
+
+  // Update labels live
+  [modeSel,countSel,sizeRange,densityRange,biasSel,handSel,showNextHud].forEach(el=>{
+    el.addEventListener('input', () => { readUI(); reset(true); });
+    el.addEventListener('change', () => { readUI(); reset(true); });
+  });
+
+  // Draw helpers
+  function drawCourt(W,H){
+    // background base
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#0d3a46');
+    g.addColorStop(0.55,'#0b2f3c');
+    g.addColorStop(1,'#082433');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    // soft vignette
+    const vg = ctx.createRadialGradient(W*0.5,H*0.55, Math.min(W,H)*0.15, W*0.5,H*0.55, Math.max(W,H)*0.75);
+    vg.addColorStop(0,'rgba(255,255,255,0.06)');
+    vg.addColorStop(1,'rgba(0,0,0,0.45)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0,0,W,H);
+
+    if (S.mode !== 'court') return;
+
+    // trapezoid court with lines
+    const padY = 0.06 * H;
+    const topY = padY + 0.10 * H;
+    const botY = H - padY - 0.06 * H;
+    const cx = W*0.5;
+    const topW = 0.60*W;
+    const botW = 0.92*W;
+
+    // court floor
+    ctx.beginPath();
+    ctx.moveTo(cx-topW/2, topY);
+    ctx.lineTo(cx+topW/2, topY);
+    ctx.lineTo(cx+botW/2, botY);
+    ctx.lineTo(cx-botW/2, botY);
+    ctx.closePath();
+
+    const cg = ctx.createLinearGradient(0,topY,0,botY);
+    cg.addColorStop(0,'rgba(15,150,155,0.45)');
+    cg.addColorStop(1,'rgba(10,95,105,0.42)');
+    ctx.fillStyle = cg;
+    ctx.fill();
+
+    // lines
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(255,255,255,0.72)';
+    ctx.stroke();
+
+    // net line (near top)
+    const netV = 0.23;
+    const netY = topY + (botY - topY)*netV;
+    const netW = topW + (botW - topW)*netV;
+    ctx.beginPath();
+    ctx.moveTo(cx-netW/2, netY);
+    ctx.lineTo(cx+netW/2, netY);
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+
+    // center line
+    ctx.beginPath();
+    ctx.moveTo(cx, topY);
+    ctx.lineTo(cx, botY);
+    ctx.strokeStyle = 'rgba(255,255,255,0.40)';
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+
+    // subtle "net mesh" hint (light, doesn't distract)
+    ctx.save();
+    ctx.globalAlpha = 0.08;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    const meshH = Math.max(8, Math.min(14, H*0.015));
+    for (let y=netY-18; y<=netY+18; y+=meshH){
+      ctx.beginPath();
+      ctx.moveTo(cx-netW/2, y);
+      ctx.lineTo(cx+netW/2, y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawTargetCircle(x,y,r,alpha=1,scale=1){
+    const rr = r*scale;
+
+    // shadow
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = rr*0.40;
+    ctx.shadowOffsetY = rr*0.18;
+
+    // base fill (soft glass)
+    const grad = ctx.createRadialGradient(x-rr*0.25, y-rr*0.30, rr*0.10, x, y, rr);
+    grad.addColorStop(0, 'rgba(255,255,255,0.92)');
+    grad.addColorStop(0.45, 'rgba(255,255,255,0.70)');
+    grad.addColorStop(1, 'rgba(255,255,255,0.35)');
+
+    ctx.beginPath();
+    ctx.arc(x,y,rr,0,Math.PI*2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // border
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = Math.max(1.4, rr*0.08);
+    ctx.strokeStyle = 'rgba(120,214,255,0.55)';
+    ctx.stroke();
+
+    // inner highlight ring
+    ctx.beginPath();
+    ctx.arc(x,y,rr*0.72,0,Math.PI*2);
+    ctx.lineWidth = Math.max(1, rr*0.05);
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawNumber(n,x,y,r,alpha=1,scale=1){
+    const rr = r*scale;
+    const fontSize = Math.max(12, rr*0.95);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `800 ${fontSize}px ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif`;
+
+    // outline (埋もれない)
+    ctx.lineWidth = Math.max(3, fontSize*0.12);
+    ctx.strokeStyle = 'rgba(7,11,24,0.85)';
+    ctx.strokeText(String(n), x, y+1);
+
+    // fill
+    ctx.fillStyle = 'rgba(15,23,51,0.95)';
+    ctx.fillText(String(n), x, y);
+
+    ctx.restore();
+  }
+
+  // Interaction
+  function nowSec(){ return performance.now()/1000; }
+
+  function hitTest(px,py){
+    // from topmost down (not important but consistent)
+    for (let i=circles.length-1; i>=0; i--){
+      const c = circles[i];
+      if (!c.alive) continue;
+      const dx = px - c.x, dy = py - c.y;
+      if (dx*dx + dy*dy <= c.r*c.r) return c;
+    }
+    return null;
+  }
+
+  function doMissFeedback(x,y){
+    miss++;
+    elMiss.textContent = String(miss);
+    if (vibeChk.checked && navigator.vibrate) navigator.vibrate(20);
+    beep(140, 0.05, 'square', 0.02);
+
+    // add a tiny "shake" animation to the closest alive circle under pointer (if any) OR a global flash
+    const c = hitTest(x,y);
+    if (c) c.anim = { type:'miss', t:0 };
+  }
+
+  function doHit(c){
+    if (!startedAt) startedAt = nowSec();
+    // correct?
+    if (c.n !== next){
+      doMissFeedback(c.x,c.y);
       return;
     }
 
-    const {A,B,C,D, netY} = courtQuad();
+    // correct feedback: short pop then vanish (0.12〜0.18秒)
+    if (vibeChk.checked && navigator.vibrate) navigator.vibrate(12);
+    beep(520, 0.06, 'sine', 0.03);
 
-    // wall minimal
-    bgCtx.save();
-    const wallH = h*0.16;
-    const wall = bgCtx.createLinearGradient(0,0,0,wallH);
-    wall.addColorStop(0, "#e8f4df");
-    wall.addColorStop(1, "#d6e7d5");
-    bgCtx.fillStyle = wall;
-    bgCtx.fillRect(0,0,w,wallH);
-    bgCtx.globalAlpha = 0.18;
-    bgCtx.fillStyle = "#ffffff";
-    for(let x=0;x<w;x+=90) bgCtx.fillRect(x+8, 10, 70, 22);
-    bgCtx.restore();
+    c.anim = { type:'hit', t:0 };
+    // mark as dying, but keep drawing during anim
+    c.alive = false;
 
-    // opponent court
-    bgCtx.save();
-    const courtGrad = bgCtx.createLinearGradient(0,D.y,0,netY);
-    courtGrad.addColorStop(0, "#92da6d");
-    courtGrad.addColorStop(1, "#75c85e");
-    bgCtx.fillStyle = courtGrad;
-    bgCtx.beginPath();
-    bgCtx.moveTo(A.x,A.y); bgCtx.lineTo(B.x,B.y); bgCtx.lineTo(C.x,C.y); bgCtx.lineTo(D.x,D.y);
-    bgCtx.closePath();
-    bgCtx.fill();
-
-    // lines
-    bgCtx.strokeStyle = "rgba(255,255,255,.92)";
-    bgCtx.lineWidth = 3;
-
-    const q = (u,v)=>quadPoint(A,B,C,D,u,v);
-    const line=(u1,v1,u2,v2)=>{
-      const p1=q(u1,v1), p2=q(u2,v2);
-      bgCtx.beginPath(); bgCtx.moveTo(p1.x,p1.y); bgCtx.lineTo(p2.x,p2.y); bgCtx.stroke();
-    };
-    line(0,0,1,0); line(0,1,1,1); line(0,0,0,1); line(1,0,1,1);
-    for(const u of [0.33,0.5,0.67]) line(u,0,u,1);
-    for(const v of [0.33,0.66]) line(0,v,1,v);
-    bgCtx.restore();
-
-    // net (front-most visual)
-    const poleL = {x: A.x, y: netY-90};
-    const poleR = {x: B.x, y: netY-90};
-
-    bgCtx.save();
-    bgCtx.strokeStyle = "rgba(15,23,42,.78)";
-    bgCtx.lineWidth = 5;
-    bgCtx.beginPath(); bgCtx.moveTo(poleL.x, h*0.98); bgCtx.lineTo(poleL.x, poleL.y); bgCtx.stroke();
-    bgCtx.beginPath(); bgCtx.moveTo(poleR.x, h*0.98); bgCtx.lineTo(poleR.x, poleR.y); bgCtx.stroke();
-    bgCtx.restore();
-
-    bgCtx.save();
-    bgCtx.globalAlpha = 0.92;
-    bgCtx.fillStyle = "#2563eb";
-    bgCtx.fillRect(poleL.x-12, poleL.y-2, 24, 140);
-    bgCtx.fillRect(poleR.x-12, poleR.y-2, 24, 140);
-    bgCtx.restore();
-
-    bgCtx.save();
-    bgCtx.fillStyle = "rgba(2,6,23,.12)";
-    bgCtx.fillRect(poleL.x, netY, poleR.x - poleL.x, 110);
-
-    bgCtx.strokeStyle = "rgba(2,6,23,.22)";
-    bgCtx.lineWidth = 1;
-    for(let i=0;i<=46;i++){
-      const x = poleL.x + (poleR.x-poleL.x)*(i/46);
-      bgCtx.beginPath(); bgCtx.moveTo(x, netY); bgCtx.lineTo(x, netY+110); bgCtx.stroke();
+    next++;
+    if (next > S.count) {
+      done = true;
     }
-    for(let j=0;j<=12;j++){
-      const y = netY + 110*(j/12);
-      bgCtx.beginPath(); bgCtx.moveTo(poleL.x, y); bgCtx.lineTo(poleR.x, y); bgCtx.stroke();
-    }
-
-    bgCtx.strokeStyle = "rgba(249,115,22,.95)";
-    bgCtx.lineWidth = 6;
-    bgCtx.beginPath(); bgCtx.moveTo(poleL.x, netY); bgCtx.lineTo(poleR.x, netY); bgCtx.stroke();
-    bgCtx.restore();
-
-    bgCtx.save();
-    const vign = bgCtx.createRadialGradient(w/2,h*0.65, 80, w/2,h*0.65, Math.max(w,h)*0.8);
-    vign.addColorStop(0, "rgba(0,0,0,0)");
-    vign.addColorStop(1, "rgba(0,0,0,.13)");
-    bgCtx.fillStyle = vign;
-    bgCtx.fillRect(0,0,w,h);
-    bgCtx.restore();
+    elNextNum.textContent = String(Math.min(next, S.count));
   }
 
-  // ---- targets (no overlap) ----
-  function makeTargets(){
-    const w = canvas.width, h = canvas.height;
-    const maxN = Number(maxNumSel.value);
-    const densityScale = Number(density.value)/100;
-    const mode = modeSel.value;
-
-    const baseR = 22 * densityScale;
-    const baseMin = 42 * densityScale;
-
-    const placed = [];
-    const maxAttempts = 14000;
-
-    function placeOne(n){
-      for(let a=0; a<maxAttempts; a++){
-        let x,y,v,r,minD;
-
-        if(mode === "court"){
-          const {A,B,C,D, netY, farY} = courtQuad();
-          v = Math.pow(Math.random(), 0.78); // 0 near(net) .. 1 far
-          const u = Math.random();
-          const p = quadPoint(A,B,C,D,u,v);
-          x = p.x; y = p.y;
-
-          const s = (1.0 - 0.40*v) * densityScale;
-          r = baseR * s;
-          minD = baseMin * s;
-
-          if(y > netY - 6) continue;        // netより奥だけ
-          if(y < farY - 6) continue;        // 壁側に行きすぎない（実質未使用域排除）
-          const m = r + 6;
-          if(x < m || x > w-m) continue;
-        } else {
-          const padX = w*0.08, padTop = h*0.12, padBottom = h*0.08;
-          x = padX + Math.random()*(w - padX*2);
-          y = padTop + Math.random()*(h - padTop - padBottom);
-          v = Math.random();
-          const s = (0.90 + 0.25*(1-v)) * densityScale;
-          r = baseR * s;
-          minD = baseMin * s;
-        }
-
-        let coll = false;
-        for(const q of placed){
-          const d = Math.hypot(x - q.x, y - q.y);
-          const need = (minD + q.minD) * 0.56;
-          if(d < need){ coll = true; break; }
-        }
-        if(coll) continue;
-
-        placed.push({num:n, x, y, v, r, minD, hit:false});
-        return true;
-      }
-      return false;
-    }
-
-    for(let n=1;n<=maxN;n++){
-      if(!placeOne(n)){
-        // last resort
-        placed.push({num:n, x:w/2, y:h/2, v:0.5, r:14, minD:18, hit:false});
-      }
-    }
-
-    placed.sort((a,b)=> b.v - a.v);
-    targets = placed;
-
-    next = 1;
-    nextNumEl.textContent = "1";
-    toast.classList.remove("show");
-    loadBest();
-    requestDraw();
-  }
-
-  // ---- draw targets (NO "next" highlight) ----
-  function drawTargets(){
-    const list = [...targets].sort((a,b)=> b.v - a.v);
-
-    for(const t of list){
-      const face = "rgba(255,255,255,.86)";
-      const ring = "rgba(15,23,42,.18)";
-      const shadow = "rgba(15,23,42,.12)";
-      const text = t.hit ? "rgba(100,116,139,.55)" : "rgba(15,23,42,.92)";
-
-      // shadow
-      ctx.save();
-      ctx.fillStyle = shadow;
-      ctx.beginPath();
-      ctx.arc(t.x+2, t.y+4, t.r*1.05, 0, Math.PI*2);
-      ctx.fill();
-      ctx.restore();
-
-      // body
-      ctx.save();
-      ctx.fillStyle = face;
-      ctx.strokeStyle = ring;
-      ctx.lineWidth = Math.max(2, t.r*0.14);
-      ctx.beginPath();
-      ctx.arc(t.x, t.y, t.r, 0, Math.PI*2);
-      ctx.fill();
-      ctx.stroke();
-
-      // number
-      ctx.fillStyle = text;
-      ctx.font = `800 ${Math.round(t.r*1.05)}px ui-sans-serif, system-ui, -apple-system`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(String(t.num), t.x, t.y+0.5);
-      ctx.restore();
-
-      // hit mark
-      if(t.hit){
-        ctx.save();
-        ctx.globalAlpha = 0.20;
-        ctx.strokeStyle = "rgba(100,116,139,.9)";
-        ctx.lineWidth = Math.max(2, t.r*0.12);
-        ctx.beginPath();
-        ctx.moveTo(t.x - t.r*0.55, t.y);
-        ctx.lineTo(t.x - t.r*0.1,  t.y + t.r*0.45);
-        ctx.lineTo(t.x + t.r*0.6,  t.y - t.r*0.45);
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
-  }
-
-  // ---- render scheduler ----
-  let needsDraw = true;
-  function requestDraw(){ needsDraw = true; }
-
-  function render(){
-    if(!needsDraw && shake <= 0) return;
-
-    const w = canvas.width, h = canvas.height;
-    ctx.save();
-    if(shake > 0){
-      const s = shake;
-      ctx.translate((Math.random()-0.5)*10*s, (Math.random()-0.5)*8*s);
-    }
-    ctx.clearRect(0,0,w,h);
-    ctx.drawImage(bg, 0, 0);
-    drawTargets();
-    ctx.restore();
-
-    needsDraw = false;
-  }
-
-  // ---- loop ----
-  function loop(){
-    if(running){
-      elapsed = (performance.now() - startAt)/1000;
-      timerEl.textContent = elapsed.toFixed(2);
-    }
-    if(shake > 0){
-      shake = Math.max(0, shake - 0.08);
-      requestDraw();
-    }
-    render();
-    requestAnimationFrame(loop);
-  }
-
-  // ---- input ----
-  function getPointerPos(e){
+  function pointerPos(ev){
     const rect = canvas.getBoundingClientRect();
-    const t = (e.touches && e.touches[0]) ? e.touches[0] : null;
-    const clientX = t ? t.clientX : e.clientX;
-    const clientY = t ? t.clientY : e.clientY;
-    const x = (clientX - rect.left) * (canvas.width / rect.width);
-    const y = (clientY - rect.top) * (canvas.height / rect.height);
+    const x = (ev.clientX - rect.left);
+    const y = (ev.clientY - rect.top);
     return {x,y};
   }
 
-  function pickTargetAt(p){
-    let best = null;
-    for(const t of targets){
-      if(t.hit) continue;
-      const d = Math.hypot(p.x - t.x, p.y - t.y);
-      if(d <= t.r*1.08){
-        if(!best || d < best.d) best = {t, d};
+  canvas.addEventListener('pointerdown', (ev) => {
+    ev.preventDefault();
+    const p = pointerPos(ev);
+    const c = hitTest(p.x, p.y);
+    if (!c) { doMissFeedback(p.x,p.y); return; }
+    doHit(c);
+  }, { passive:false });
+
+  // Animation loop
+  let lastT = performance.now();
+  function loop(tms){
+    const dt = Math.min(0.033, (tms - lastT)/1000);
+    lastT = tms;
+
+    const {W,H} = getPlayRect();
+    ctx.clearRect(0,0,W,H);
+
+    // background
+    drawCourt(W,H);
+
+    // time
+    if (startedAt && !done){
+      const tm = nowSec() - startedAt;
+      elTime.textContent = tm.toFixed(2);
+    }
+    if (done && startedAt){
+      const tm = nowSec() - startedAt;
+      elTime.textContent = tm.toFixed(2);
+    }
+
+    // draw circles
+    for (const c of circles){
+      // alive: normal draw
+      if (c.alive){
+        let scale = 1, alpha = 1;
+        if (c.anim && c.anim.type === 'miss'){
+          c.anim.t += dt;
+          // quick wobble
+          const tt = c.anim.t;
+          const w = Math.exp(-tt*14) * Math.sin(tt*60);
+          const sx = 1 + w*0.06;
+          const sy = 1 - w*0.06;
+          // draw with slight squash
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.scale(sx, sy);
+          ctx.translate(-c.x, -c.y);
+          drawTargetCircle(c.x,c.y,c.r,1,1);
+          drawNumber(c.n,c.x,c.y,c.r,1,1);
+          ctx.restore();
+
+          if (tt > 0.18) c.anim = null;
+          continue;
+        }
+
+        drawTargetCircle(c.x,c.y,c.r,alpha,scale);
+        drawNumber(c.n,c.x,c.y,c.r,alpha,scale);
+        continue;
+      }
+
+      // not alive: if hit anim is active, draw fading pop
+      if (c.anim && c.anim.type === 'hit'){
+        c.anim.t += dt;
+        const tt = c.anim.t;
+        const dur = 0.16;
+        const k = Math.min(1, tt/dur);
+        // pop: slightly shrink then fade
+        const pop = 1 - 0.18 * Math.sin(k*Math.PI);
+        const alpha = 1 - k;
+        drawTargetCircle(c.x,c.y,c.r,alpha,pop);
+        drawNumber(c.n,c.x,c.y,c.r,alpha,pop);
+        if (tt >= dur) c.anim = null;
       }
     }
-    return best ? best.t : null;
-  }
 
-  function onPick(e){
-    e.preventDefault();
-    if(!targets.length) return;
-
-    if(!running){
-      running = true;
-      startAt = performance.now();
-      elapsed = 0;
-      timerEl.textContent = "0.00";
-      toast.classList.remove("show");
+    // finish banner (minimal)
+    if (done){
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.fillRect(0,0,W,H);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '800 34px ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP"';
+      ctx.fillStyle = 'rgba(255,255,255,0.96)';
+      ctx.fillText('FINISH', W/2, H/2 - 18);
+      ctx.font = '700 16px ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP"';
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      ctx.fillText(`Time ${elTime.textContent}s / Miss ${miss}`, W/2, H/2 + 18);
+      ctx.restore();
     }
 
-    const p = getPointerPos(e);
-    const t = pickTargetAt(p);
-    if(!t) return;
-
-    if(t.num === next){
-      t.hit = true;
-      beep(true);
-
-      next++;
-      nextNumEl.textContent = String(next);
-      requestDraw();
-
-      const maxN = Number(maxNumSel.value);
-      if(next > maxN){
-        running = false;
-        const final = elapsed;
-        saveBest(final);
-        toast.textContent = `クリア！ ${final.toFixed(2)}秒 🎉（最大番号 ${maxN} / ${modeSel.value==="court"?"コート版":"通常版"}）`;
-        toast.classList.add("show");
-      }
-    }else{
-      beep(false);
-      shake = Math.min(1, shake + 0.9);
-      requestDraw();
-    }
+    requestAnimationFrame(loop);
   }
 
-  // ---- UI ----
-  function applyScale(){
-    const v = uiScaleSel.value;
-    canvasWrap.classList.remove("scale-80","scale-90","scale-100","scale-110","scale-120");
-    canvasWrap.classList.add("scale-" + v);
-  }
-
-  function restart(hard=false){
-    if(hard) makeTargets();
-    for(const t of targets) t.hit = false;
-    next = 1;
-    nextNumEl.textContent = "1";
-    running = false;
-    elapsed = 0;
-    timerEl.textContent = "0.00";
-    toast.classList.remove("show");
-    loadBest();
-    requestDraw();
-  }
-
-  function rebuildAll(){
-    drawBackgroundCached();
-    makeTargets();
-    restart(true);
-  }
-
-  density.addEventListener("input", () => { densityVal.textContent = density.value; });
-  density.addEventListener("change", rebuildAll);
-  maxNumSel.addEventListener("change", rebuildAll);
-  modeSel.addEventListener("change", rebuildAll);
-
-  uiScaleSel.addEventListener("change", applyScale);
-  document.getElementById("restart").addEventListener("click", () => restart(false));
-  document.getElementById("reshuffle").addEventListener("click", () => makeTargets());
-
-  canvas.addEventListener("mousedown", onPick);
-  canvas.addEventListener("touchstart", onPick, {passive:false});
-
-  // ---- init ----
-  densityVal.textContent = density.value;
-  applyScale();
-  drawBackgroundCached();
-  makeTargets();
-  loadBest();
-  loop();
+  // init
+  readUI();
+  reset(true);
+  requestAnimationFrame(loop);
 })();
 </script>
 </body>
