@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>空間把握トレーニング（コート版 / 通常版）</title>
+  <style>
+    :root{
+      --bg1:#e9fbf0; --bg2:#f7f6ff;
+      --ink:#1d2433; --muted:#64748b;
+      --card: rgba(255,255,255,.78);
+      --stroke: rgba(20,25,35,.12);
+      --shadow: 0 10px 30px rgba(12,18,28,.12);
+      --r: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 800px at 15% 10%, #ffffff 0%, transparent 60%),
+        radial-gradient(900px 700px at 80% 20%, #ffffff 0%, transparent 55%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+    .wrap{ width:min(980px, 100%); display:grid; gap:12px; }
+    header{ display:flex; gap:12px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; }
+    .title{ display:flex; gap:10px; align-items:center; }
+    .badge{
+      width:42px;height:42px;border-radius:14px;
+      background:linear-gradient(135deg, #8ef6c5, #a5b4fc);
+      box-shadow: 0 10px 18px rgba(79,70,229,.14);
+      display:grid;place-items:center;
+      border:1px solid rgba(255,255,255,.65);
+    }
+    .badge span{ font-weight:900; color:#0b1020; transform: rotate(-8deg); }
+    h1{ margin:0; font-size:18px; line-height:1.2; }
+    .sub{ margin:2px 0 0; font-size:12px; color:var(--muted); }
+
+    .panel{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .controls{
+      padding:12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      gap:10px;
+      align-items:end;
+    }
+    @media (max-width: 900px){
+      .controls{ grid-template-columns: 1fr 1fr; }
+      .controls .btnrow{ grid-column: 1 / -1; justify-content:stretch; }
+    }
+    label{ display:grid; gap:6px; font-size:12px; color:var(--muted); }
+    select, input[type="range"]{ width:100%; }
+    select{
+      padding:10px 10px;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.15);
+      background:rgba(255,255,255,.9);
+      font-size:14px;
+      color:var(--ink);
+      outline:none;
+    }
+    .rangeRow{ display:flex; gap:10px; align-items:center; }
+    .pill{
+      font-variant-numeric: tabular-nums;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(15,23,42,.06);
+      border:1px solid rgba(15,23,42,.08);
+      color:var(--ink);
+      font-size:13px;
+      min-width:86px;
+      text-align:center;
+    }
+    .btnrow{ display:flex; gap:10px; justify-content:flex-end; align-items:center; }
+    button{
+      border:none;
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:700;
+      cursor:pointer;
+      color:#0b1020;
+      background:linear-gradient(135deg, #a7f3d0, #c7d2fe);
+      box-shadow: 0 10px 18px rgba(79,70,229,.10);
+      border:1px solid rgba(255,255,255,.65);
+    }
+    button.secondary{
+      background:rgba(255,255,255,.9);
+      border:1px solid rgba(15,23,42,.15);
+      box-shadow:none;
+      color:var(--ink);
+    }
+    button:active{ transform: translateY(1px); }
+
+    .stage{ padding:12px; }
+    .hud{
+      display:flex; gap:10px;
+      align-items:center; justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .hud .stats{ display:flex; gap:10px; flex-wrap:wrap; }
+    .chip{
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.75);
+      border:1px solid rgba(15,23,42,.12);
+      font-size:12px;
+      color:var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+    .chip b{ font-size:13px; }
+    .hint{ font-size:12px; color:var(--muted); }
+
+    .canvasWrap{ width:100%; display:flex; justify-content:center; }
+    .scale-80  { transform: scale(.80); transform-origin: top center; }
+    .scale-90  { transform: scale(.90); transform-origin: top center; }
+    .scale-100 { transform: scale(1); transform-origin: top center; }
+    .scale-110 { transform: scale(1.10); transform-origin: top center; }
+    .scale-120 { transform: scale(1.20); transform-origin: top center; }
+
+    canvas{
+      width: 860px;
+      max-width: 100%;
+      height: auto;
+      border-radius: 16px;
+      border:1px solid rgba(15,23,42,.15);
+      background: #f7fff9;
+      box-shadow: 0 16px 40px rgba(12,18,28,.18);
+      touch-action: manipulation;
+    }
+
+    .toast{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background:rgba(255,255,255,.75);
+      border:1px solid rgba(15,23,42,.12);
+      font-size:13px;
+      color:var(--ink);
+      display:none;
+    }
+    .toast.show{ display:block; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">
+      <div class="badge" aria-hidden="true"><span>10</span></div>
+      <div>
+        <h1>空間把握トレーニング</h1>
+        <div class="sub">コート版：ネット最前面／数字は相手コート（奥）だけ。通常版も切替可。</div>
+      </div>
+    </div>
+   </header>
+
+  <section class="panel">
+    <div class="controls">
+      <label>
+        モード
+        <select id="mode">
+          <option value="court" selected>コート版（相手コートのみ）</option>
+          <option value="normal">通常版（平面フィールド）</option>
+        </select>
+      </label>
+
+      <label>
+        最大番号（10刻み）
+        <select id="maxNum">
+          <option value="10">10</option>
+          <option value="20" selected>20</option>
+          <option value="30">30</option>
+          <option value="40">40</option>
+          <option value="50">50</option>
+        </select>
+      </label>
+
+      <label>
+        表示サイズ（小さくする）
+        <select id="uiScale">
+          <option value="80">小（80%）</option>
+          <option value="90">やや小（90%）</option>
+          <option value="100" selected>標準（100%）</option>
+          <option value="110">やや大（110%）</option>
+          <option value="120">大（120%）</option>
+        </select>
+      </label>
+
+      <label>
+        数字の大きさ（密度）
+        <div class="rangeRow">
+          <input id="density" type="range" min="80" max="140" value="105" />
+          <div class="pill"><span id="densityVal">105</span>%</div>
+        </div>
+      </label>
+
+      <div class="btnrow">
+        <button class="secondary" id="reshuffle">配置しなおす</button>
+        <button id="restart">スタート</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel stage">
+    <div class="hud">
+      <div class="stats">
+        <div class="chip">次：<b id="nextNum">1</b></div>
+        <div class="chip">経過：<b id="timer">0.00</b>s</div>
+        <div class="chip">ベスト：<b id="best">—</b></div>
+      </div>
+     </div>
+
+    <div class="canvasWrap" id="canvasWrap">
+      <canvas id="c" width="860" height="520"></canvas>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d", { alpha: true });
+
+  const modeSel = document.getElementById("mode");
+  const maxNumSel = document.getElementById("maxNum");
+  const uiScaleSel = document.getElementById("uiScale");
+  const density = document.getElementById("density");
+  const densityVal = document.getElementById("densityVal");
+  const restartBtn = document.getElementById("restart");
+  const reshuffleBtn = document.getElementById("reshuffle");
+
+  const nextNumEl = document.getElementById("nextNum");
+  const timerEl = document.getElementById("timer");
+  const bestEl = document.getElementById("best");
+  const toast = document.getElementById("toast");
+  const canvasWrap = document.getElementById("canvasWrap");
+
+  let targets = [];
+  let running = false;
+  let startAt = 0;
+  let elapsed = 0;
+  let next = 1;
+  let shake = 0;
+
+  // 背景キャッシュ
+  const bg = document.createElement("canvas");
+  bg.width = canvas.width;
+  bg.height = canvas.height;
+  const bgCtx = bg.getContext("2d");
+
+  // ---- sound (軽) ----
+  let audioCtx = null;
+  function beep(ok=true){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      const t = audioCtx.currentTime;
+      const base = ok ? 660 : 220;
+      o.type = "sine";
+      o.frequency.setValueAtTime(base, t);
+      o.frequency.exponentialRampToValueAtTime(base*1.2, t+0.06);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.14, t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+0.12);
+      o.start(t); o.stop(t+0.13);
+    }catch(e){}
+  }
+
+  // ---- best ----
+  function fmtBest(x){ return isFinite(x) ? x.toFixed(2)+"s" : "—"; }
+  function bestKey(){ return "spatial_best_"+modeSel.value+"_"+maxNumSel.value+"_"+density.value; }
+  function loadBest(){
+    const v = Number(localStorage.getItem(bestKey()));
+    bestEl.textContent = fmtBest(v);
+  }
+  function saveBest(val){
+    const key = bestKey();
+    const cur = Number(localStorage.getItem(key));
+    if(!isFinite(cur) || val < cur) localStorage.setItem(key, String(val));
+    loadBest();
+  }
+
+  // ---- geometry ----
+  const lerp = (p,q,t)=>({x:p.x+(q.x-p.x)*t, y:p.y+(q.y-p.y)*t});
+  function quadPoint(A,B,C,D,u,v){
+    const P1 = lerp(A,B,u);
+    const P2 = lerp(D,C,u);
+    return lerp(P1,P2,v);
+  }
+
+  function courtQuad(){
+    const w = canvas.width, h = canvas.height;
+    const farY = h*0.14;   // 奥（上）
+    const netY = h*0.62;   // ネット（手前）
+    const nearWidth = 0.72;
+    const farWidth  = 0.46;
+
+    const A = {x: w*(0.5 - nearWidth/2), y: netY};
+    const B = {x: w*(0.5 + nearWidth/2), y: netY};
+    const D = {x: w*(0.5 - farWidth/2),  y: farY};
+    const C = {x: w*(0.5 + farWidth/2),  y: farY};
+    return {A,B,C,D, netY, farY};
+  }
+
+  // ---- background cached ----
+  function drawBackgroundCached(){
+    const w = bg.width, h = bg.height;
+    bgCtx.clearRect(0,0,w,h);
+
+    const mode = modeSel.value;
+
+    const base = bgCtx.createLinearGradient(0,0,0,h);
+    base.addColorStop(0, "#f4fff8");
+    base.addColorStop(1, "#eff3ff");
+    bgCtx.fillStyle = base;
+    bgCtx.fillRect(0,0,w,h);
+
+    if(mode === "normal"){
+      bgCtx.save();
+      bgCtx.globalAlpha = 0.25;
+      bgCtx.fillStyle = "#ffffff";
+      for(let y=20; y<h; y+=70){
+        for(let x=20; x<w; x+=70){
+          bgCtx.beginPath();
+          bgCtx.roundRect(x,y,54,54,12);
+          bgCtx.fill();
+        }
+      }
+      bgCtx.restore();
+
+      bgCtx.save();
+      bgCtx.strokeStyle = "rgba(15,23,42,.14)";
+      bgCtx.lineWidth = 2;
+      bgCtx.beginPath();
+      bgCtx.roundRect(w*0.06, h*0.10, w*0.88, h*0.84, 18);
+      bgCtx.stroke();
+      bgCtx.restore();
+      return;
+    }
+
+    const {A,B,C,D, netY} = courtQuad();
+
+    // wall minimal
+    bgCtx.save();
+    const wallH = h*0.16;
+    const wall = bgCtx.createLinearGradient(0,0,0,wallH);
+    wall.addColorStop(0, "#e8f4df");
+    wall.addColorStop(1, "#d6e7d5");
+    bgCtx.fillStyle = wall;
+    bgCtx.fillRect(0,0,w,wallH);
+    bgCtx.globalAlpha = 0.18;
+    bgCtx.fillStyle = "#ffffff";
+    for(let x=0;x<w;x+=90) bgCtx.fillRect(x+8, 10, 70, 22);
+    bgCtx.restore();
+
+    // opponent court
+    bgCtx.save();
+    const courtGrad = bgCtx.createLinearGradient(0,D.y,0,netY);
+    courtGrad.addColorStop(0, "#92da6d");
+    courtGrad.addColorStop(1, "#75c85e");
+    bgCtx.fillStyle = courtGrad;
+    bgCtx.beginPath();
+    bgCtx.moveTo(A.x,A.y); bgCtx.lineTo(B.x,B.y); bgCtx.lineTo(C.x,C.y); bgCtx.lineTo(D.x,D.y);
+    bgCtx.closePath();
+    bgCtx.fill();
+
+    // lines
+    bgCtx.strokeStyle = "rgba(255,255,255,.92)";
+    bgCtx.lineWidth = 3;
+
+    const q = (u,v)=>quadPoint(A,B,C,D,u,v);
+    const line=(u1,v1,u2,v2)=>{
+      const p1=q(u1,v1), p2=q(u2,v2);
+      bgCtx.beginPath(); bgCtx.moveTo(p1.x,p1.y); bgCtx.lineTo(p2.x,p2.y); bgCtx.stroke();
+    };
+    line(0,0,1,0); line(0,1,1,1); line(0,0,0,1); line(1,0,1,1);
+    for(const u of [0.33,0.5,0.67]) line(u,0,u,1);
+    for(const v of [0.33,0.66]) line(0,v,1,v);
+    bgCtx.restore();
+
+    // net (front-most visual)
+    const poleL = {x: A.x, y: netY-90};
+    const poleR = {x: B.x, y: netY-90};
+
+    bgCtx.save();
+    bgCtx.strokeStyle = "rgba(15,23,42,.78)";
+    bgCtx.lineWidth = 5;
+    bgCtx.beginPath(); bgCtx.moveTo(poleL.x, h*0.98); bgCtx.lineTo(poleL.x, poleL.y); bgCtx.stroke();
+    bgCtx.beginPath(); bgCtx.moveTo(poleR.x, h*0.98); bgCtx.lineTo(poleR.x, poleR.y); bgCtx.stroke();
+    bgCtx.restore();
+
+    bgCtx.save();
+    bgCtx.globalAlpha = 0.92;
+    bgCtx.fillStyle = "#2563eb";
+    bgCtx.fillRect(poleL.x-12, poleL.y-2, 24, 140);
+    bgCtx.fillRect(poleR.x-12, poleR.y-2, 24, 140);
+    bgCtx.restore();
+
+    bgCtx.save();
+    bgCtx.fillStyle = "rgba(2,6,23,.12)";
+    bgCtx.fillRect(poleL.x, netY, poleR.x - poleL.x, 110);
+
+    bgCtx.strokeStyle = "rgba(2,6,23,.22)";
+    bgCtx.lineWidth = 1;
+    for(let i=0;i<=46;i++){
+      const x = poleL.x + (poleR.x-poleL.x)*(i/46);
+      bgCtx.beginPath(); bgCtx.moveTo(x, netY); bgCtx.lineTo(x, netY+110); bgCtx.stroke();
+    }
+    for(let j=0;j<=12;j++){
+      const y = netY + 110*(j/12);
+      bgCtx.beginPath(); bgCtx.moveTo(poleL.x, y); bgCtx.lineTo(poleR.x, y); bgCtx.stroke();
+    }
+
+    bgCtx.strokeStyle = "rgba(249,115,22,.95)";
+    bgCtx.lineWidth = 6;
+    bgCtx.beginPath(); bgCtx.moveTo(poleL.x, netY); bgCtx.lineTo(poleR.x, netY); bgCtx.stroke();
+    bgCtx.restore();
+
+    bgCtx.save();
+    const vign = bgCtx.createRadialGradient(w/2,h*0.65, 80, w/2,h*0.65, Math.max(w,h)*0.8);
+    vign.addColorStop(0, "rgba(0,0,0,0)");
+    vign.addColorStop(1, "rgba(0,0,0,.13)");
+    bgCtx.fillStyle = vign;
+    bgCtx.fillRect(0,0,w,h);
+    bgCtx.restore();
+  }
+
+  // ---- targets (no overlap) ----
+  function makeTargets(){
+    const w = canvas.width, h = canvas.height;
+    const maxN = Number(maxNumSel.value);
+    const densityScale = Number(density.value)/100;
+    const mode = modeSel.value;
+
+    const baseR = 22 * densityScale;
+    const baseMin = 42 * densityScale;
+
+    const placed = [];
+    const maxAttempts = 14000;
+
+    function placeOne(n){
+      for(let a=0; a<maxAttempts; a++){
+        let x,y,v,r,minD;
+
+        if(mode === "court"){
+          const {A,B,C,D, netY, farY} = courtQuad();
+          v = Math.pow(Math.random(), 0.78); // 0 near(net) .. 1 far
+          const u = Math.random();
+          const p = quadPoint(A,B,C,D,u,v);
+          x = p.x; y = p.y;
+
+          const s = (1.0 - 0.40*v) * densityScale;
+          r = baseR * s;
+          minD = baseMin * s;
+
+          if(y > netY - 6) continue;        // netより奥だけ
+          if(y < farY - 6) continue;        // 壁側に行きすぎない（実質未使用域排除）
+          const m = r + 6;
+          if(x < m || x > w-m) continue;
+        } else {
+          const padX = w*0.08, padTop = h*0.12, padBottom = h*0.08;
+          x = padX + Math.random()*(w - padX*2);
+          y = padTop + Math.random()*(h - padTop - padBottom);
+          v = Math.random();
+          const s = (0.90 + 0.25*(1-v)) * densityScale;
+          r = baseR * s;
+          minD = baseMin * s;
+        }
+
+        let coll = false;
+        for(const q of placed){
+          const d = Math.hypot(x - q.x, y - q.y);
+          const need = (minD + q.minD) * 0.56;
+          if(d < need){ coll = true; break; }
+        }
+        if(coll) continue;
+
+        placed.push({num:n, x, y, v, r, minD, hit:false});
+        return true;
+      }
+      return false;
+    }
+
+    for(let n=1;n<=maxN;n++){
+      if(!placeOne(n)){
+        // last resort
+        placed.push({num:n, x:w/2, y:h/2, v:0.5, r:14, minD:18, hit:false});
+      }
+    }
+
+    placed.sort((a,b)=> b.v - a.v);
+    targets = placed;
+
+    next = 1;
+    nextNumEl.textContent = "1";
+    toast.classList.remove("show");
+    loadBest();
+    requestDraw();
+  }
+
+  // ---- draw targets (NO "next" highlight) ----
+  function drawTargets(){
+    const list = [...targets].sort((a,b)=> b.v - a.v);
+
+    for(const t of list){
+      const face = "rgba(255,255,255,.86)";
+      const ring = "rgba(15,23,42,.18)";
+      const shadow = "rgba(15,23,42,.12)";
+      const text = t.hit ? "rgba(100,116,139,.55)" : "rgba(15,23,42,.92)";
+
+      // shadow
+      ctx.save();
+      ctx.fillStyle = shadow;
+      ctx.beginPath();
+      ctx.arc(t.x+2, t.y+4, t.r*1.05, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+
+      // body
+      ctx.save();
+      ctx.fillStyle = face;
+      ctx.strokeStyle = ring;
+      ctx.lineWidth = Math.max(2, t.r*0.14);
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, t.r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+
+      // number
+      ctx.fillStyle = text;
+      ctx.font = `800 ${Math.round(t.r*1.05)}px ui-sans-serif, system-ui, -apple-system`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(t.num), t.x, t.y+0.5);
+      ctx.restore();
+
+      // hit mark
+      if(t.hit){
+        ctx.save();
+        ctx.globalAlpha = 0.20;
+        ctx.strokeStyle = "rgba(100,116,139,.9)";
+        ctx.lineWidth = Math.max(2, t.r*0.12);
+        ctx.beginPath();
+        ctx.moveTo(t.x - t.r*0.55, t.y);
+        ctx.lineTo(t.x - t.r*0.1,  t.y + t.r*0.45);
+        ctx.lineTo(t.x + t.r*0.6,  t.y - t.r*0.45);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }
+
+  // ---- render scheduler ----
+  let needsDraw = true;
+  function requestDraw(){ needsDraw = true; }
+
+  function render(){
+    if(!needsDraw && shake <= 0) return;
+
+    const w = canvas.width, h = canvas.height;
+    ctx.save();
+    if(shake > 0){
+      const s = shake;
+      ctx.translate((Math.random()-0.5)*10*s, (Math.random()-0.5)*8*s);
+    }
+    ctx.clearRect(0,0,w,h);
+    ctx.drawImage(bg, 0, 0);
+    drawTargets();
+    ctx.restore();
+
+    needsDraw = false;
+  }
+
+  // ---- loop ----
+  function loop(){
+    if(running){
+      elapsed = (performance.now() - startAt)/1000;
+      timerEl.textContent = elapsed.toFixed(2);
+    }
+    if(shake > 0){
+      shake = Math.max(0, shake - 0.08);
+      requestDraw();
+    }
+    render();
+    requestAnimationFrame(loop);
+  }
+
+  // ---- input ----
+  function getPointerPos(e){
+    const rect = canvas.getBoundingClientRect();
+    const t = (e.touches && e.touches[0]) ? e.touches[0] : null;
+    const clientX = t ? t.clientX : e.clientX;
+    const clientY = t ? t.clientY : e.clientY;
+    const x = (clientX - rect.left) * (canvas.width / rect.width);
+    const y = (clientY - rect.top) * (canvas.height / rect.height);
+    return {x,y};
+  }
+
+  function pickTargetAt(p){
+    let best = null;
+    for(const t of targets){
+      if(t.hit) continue;
+      const d = Math.hypot(p.x - t.x, p.y - t.y);
+      if(d <= t.r*1.08){
+        if(!best || d < best.d) best = {t, d};
+      }
+    }
+    return best ? best.t : null;
+  }
+
+  function onPick(e){
+    e.preventDefault();
+    if(!targets.length) return;
+
+    if(!running){
+      running = true;
+      startAt = performance.now();
+      elapsed = 0;
+      timerEl.textContent = "0.00";
+      toast.classList.remove("show");
+    }
+
+    const p = getPointerPos(e);
+    const t = pickTargetAt(p);
+    if(!t) return;
+
+    if(t.num === next){
+      t.hit = true;
+      beep(true);
+
+      next++;
+      nextNumEl.textContent = String(next);
+      requestDraw();
+
+      const maxN = Number(maxNumSel.value);
+      if(next > maxN){
+        running = false;
+        const final = elapsed;
+        saveBest(final);
+        toast.textContent = `クリア！ ${final.toFixed(2)}秒 🎉（最大番号 ${maxN} / ${modeSel.value==="court"?"コート版":"通常版"}）`;
+        toast.classList.add("show");
+      }
+    }else{
+      beep(false);
+      shake = Math.min(1, shake + 0.9);
+      requestDraw();
+    }
+  }
+
+  // ---- UI ----
+  function applyScale(){
+    const v = uiScaleSel.value;
+    canvasWrap.classList.remove("scale-80","scale-90","scale-100","scale-110","scale-120");
+    canvasWrap.classList.add("scale-" + v);
+  }
+
+  function restart(hard=false){
+    if(hard) makeTargets();
+    for(const t of targets) t.hit = false;
+    next = 1;
+    nextNumEl.textContent = "1";
+    running = false;
+    elapsed = 0;
+    timerEl.textContent = "0.00";
+    toast.classList.remove("show");
+    loadBest();
+    requestDraw();
+  }
+
+  function rebuildAll(){
+    drawBackgroundCached();
+    makeTargets();
+    restart(true);
+  }
+
+  density.addEventListener("input", () => { densityVal.textContent = density.value; });
+  density.addEventListener("change", rebuildAll);
+  maxNumSel.addEventListener("change", rebuildAll);
+  modeSel.addEventListener("change", rebuildAll);
+
+  uiScaleSel.addEventListener("change", applyScale);
+  document.getElementById("restart").addEventListener("click", () => restart(false));
+  document.getElementById("reshuffle").addEventListener("click", () => makeTargets());
+
+  canvas.addEventListener("mousedown", onPick);
+  canvas.addEventListener("touchstart", onPick, {passive:false});
+
+  // ---- init ----
+  densityVal.textContent = density.value;
+  applyScale();
+  drawBackgroundCached();
+  makeTargets();
+  loadBest();
+  loop();
+})();
+</script>
+</body>
+</html>
